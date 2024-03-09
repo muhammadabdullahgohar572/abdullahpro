@@ -1,0 +1,83 @@
+<div className="relative group">
+              <img className=" w-7" src={icon1} alt="" />
+              <a href="#">Login</a>
+              <div className="hidden group-hover:block absolute bg-slate-900 text-white h-20 w-20">
+                dhdhhdhdh
+              </div>
+            </div>
+
+
+
+
+  
+
+  const express = require('express');
+const test = require('./mongo/server');
+const done = require('./data/post2');
+const cors=require('cors')
+const bcrtpt=require('bcrypt')
+const app = express()
+
+app.use(express.json());
+
+app.use(cors())
+test()
+
+
+app.get('',(req,res)=>{
+  res.json("server is start")
+
+})
+
+app.post('/post2',async(req,res)=>{
+    try {
+        const {name,password} = req.body;
+
+        if (!name || !password) {
+            res.json("p/z fill feilds")
+            return;
+        }
+
+        const hashpassword=await bcrtpt.hash(password,14)
+        const user=new done({name,password:hashpassword});
+        const save = await user.save()
+        res.json(save)
+    } catch (error) {
+        console.log(error);
+        res.json(error)
+    }
+})
+
+
+
+app.post('/logn',async(req,res)=>{
+try {
+    const {name,password}=req.body;
+    if (!name || !password) {
+        res.json("p/z fill feilds")
+        return;
+    }
+  const user=await done.findOne({name})
+
+  if (user) {
+    const cheakpassword=await bcrtpt.compare(password,user.password)
+    res.json(cheakpassword)
+  }else{
+    res.json("user not found")
+  }
+
+} catch (error) {
+   console.log(error); 
+}
+
+
+
+})
+
+
+
+
+app.get('/get',async(req,res)=>{
+    const  data=await done.find()
+    res.json(data)
+})
